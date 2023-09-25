@@ -30,7 +30,7 @@ Table Order {
   coordinates_y number [not null]
   side Sides [not null]
   time data [not null]
-  status int [not null]
+  status Statuses [not null]
   user_id int [ref: > User.id]
   tag varchar(50) [not null]
   clothing_id int [ref: > Clothing.id]
