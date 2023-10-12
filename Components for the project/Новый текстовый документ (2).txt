@@ -1,0 +1,779 @@
+import React, {useEffect, useState} from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import Paper from "@material-ui/core/Paper";
+import Grid from "@material-ui/core/Grid";
+import tshirtImage from "../assets/image/Front.png";
+import backImage from "../assets/image/Back.png";
+import frontImage from "../assets/image/Front.png";
+import {Button, TextField} from "@mui/material";
+import FontDownloadIcon from '@mui/icons-material/FontDownload';
+import SendIcon from '@mui/icons-material/Send';
+import Stack from '@mui/material/Stack';
+import CleaningServicesRoundedIcon from '@mui/icons-material/CleaningServicesRounded';
+import {ChromePicker} from "react-color";
+import ColorLensIcon from '@mui/icons-material/ColorLens';
+import FormatSizeIcon from '@mui/icons-material/FormatSize';
+
+
+
+const useStyles = makeStyles((theme) => ({
+    root: {
+        flexGrow: 1,
+        padding: theme.spacing(2),
+    },
+    mainPaper: {
+        width: 800,
+        height: 750,
+        padding: theme.spacing(2),
+        textAlign: "center",
+        color: theme.palette.text.secondary,
+        border: "1px solid black",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        marginTop: 10,
+        position: "relative",
+    },
+    asidePaper: {
+        width: 250,
+        height: 750,
+        padding: theme.spacing(2),
+        color: theme.palette.text.secondary,
+        marginTop: 10,
+        flexDirection: "column",
+        justifyContent: "flex-start",
+        alignItems: "flex-start",
+    },
+    image: {
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+    },
+    asideButton: {
+        display: "flex",
+        flexDirection: "column",
+        marginTop: 35,
+        marginLeft: 25,
+    },
+    asideButtonImage: {
+        width: 90,
+        height: 90,
+        objectFit: "cover",
+    },
+    asideButtonLabel: {
+        marginTop: 5,
+    },
+    newBlock: {
+        width: 500,
+        height: 500,
+        backgroundColor: "rgba(230, 230, 230, 0.5)",
+        border: "1px solid black",
+        marginTop: 10,
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        overflow: "hidden",
+    },
+    textBlock: {
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    text: {
+        color: "black",
+        fontFamily: "Arial",
+        fontSize: 24,
+        textAlign: "center",
+        whiteSpace: "pre-wrap",
+        cursor: "move",
+        position: "absolute",
+    },
+    rootPaper: {
+        display: "flex",
+        flexDirection: "column",
+
+        height: 750,
+        width: 400,
+        margin: "auto",
+        marginTop: theme.spacing(2),
+    },
+    buttonContainer: {
+        display: "flex",
+        justifyContent: "center",
+        width: "100%",
+        borderRadius: "0 0 10px 10px",
+        overflow: "hidden",
+        height:"50px",
+    },
+    button: {
+        flex: 1,
+    },
+    buttonStyleContainer: {
+        marginTop: theme.spacing(2),
+        height: "100%",
+        flexDirection: "row",
+    },
+    buttonContainerDiv: {
+        marginTop: 40,
+        marginLeft: "50%",
+        width:"250px"
+    },
+    buttonContainerColorAndImage: {
+        marginLeft:10,
+        display: "flex",
+        alignItems: "center",
+        margin: theme.spacing(1, 0),
+    },
+    buttonContainerGrid: {
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        marginBottom: theme.spacing(2),
+    },
+    buttonContainerImageColor: {
+        display: "flex",
+        alignItems: "center",
+        flexDirection: "column",
+        marginBottom: theme.spacing(2),
+    },
+    imageButton: {
+        marginRight: theme.spacing(1),
+    },
+    colorPicker: {
+        position:"absolute",
+        zIndex: "2",
+    },
+    buttonColor: {
+        alignSelf: "center",
+        marginBottom: theme.spacing(1),
+    },
+    fontSelect: {
+        width: "200px",
+        height: "40px",
+        fontSize: "16px",
+        padding: theme.spacing(1),
+        border: "1px solid #ccc",
+        borderRadius: "4px",
+        outline: "none",
+        marginBottom: theme.spacing(1),
+    },
+    fontSizeInput: {
+        width: "50px",
+        height: "40px",
+        fontSize: "16px",
+        padding: theme.spacing(1),
+        border: "1px solid #ccc",
+        borderRadius: "4px",
+        outline: "none",
+        marginBottom: theme.spacing(1),
+    },
+    icon: {
+        fontSize: "50px",
+        color: "#000",
+    },
+    ButtonWidthAndHeight: {
+        marginLeft: 20,
+    },
+    popularImages: {
+    marginTop: 10,
+    },
+}));
+
+const fontFamilies = [
+    { label: "Arial", value: "Arial" },
+    { label: "Helvetica", value: "Helvetica" },
+    { label: "Times New Roman", value: "Times New Roman" },
+    { label: "Courier New", value: "Courier New" },
+    { label: "Verdana", value: "Verdana" },
+    { label: "Georgia", value: "Georgia" },
+    { label: "Palatino", value: "Palatino" },
+    { label: "Garamond", value: "Garamond" },
+    { label: "Bookman", value: "Bookman" },
+    { label: "Comic Sans MS", value: "Comic Sans MS" },
+    { label: "Trebuchet MS", value: "Trebuchet MS" },
+    { label: "Arial Black", value: "Arial Black" },
+    { label: "Impact", value: "Impact" },
+    { label: "Lucida Sans Unicode", value: "Lucida Sans Unicode" },
+    { label: "Tahoma", value: "Tahoma" },
+];
+
+
+function AddImage() {
+    const classes = useStyles();
+    const [imageSrc, setImageSrc] = useState(frontImage);
+    const [activeComponent, setActiveComponent] = useState(1);
+    const [newImageSrc, setNewImageSrc] = useState("");
+    const [textColor, setTextColor] = useState("#000000");
+    const [textSize, setTextSize] = useState(16);
+    const [showColorPicker, setShowColorPicker] = useState(false);
+    const [font, setFont] = useState("Arial");
+    const [textFields, setTextFields] = useState([]);
+    const [imageWidth, setImageWidth] = useState(200);
+    const [imageHeight, setImageHeight] = useState(200);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [popularImages, setPopularImages] = useState([
+        { src: "https://www.toybytoy.com/web-pic/0030/600/8150.webp", label: " 1", width: 100, height: 100 },
+        { src: "https://yt3.googleusercontent.com/NLJIsq7K-Qr7AMpHkLstcm9F_ZQzel_CYngyfJvAuBoOzyICVBlpXZzmGlMFqhD1PoV1bJwoxyk=s900-c-k-c0x00ffffff-no-rj", label: "2", width: 100, height: 100 },
+        { src: "https://kartinkin.net/uploads/posts/2022-03/1648110003_1-kartinkin-net-p-kartinki-dlya-printov-1.png", label: "3", width: 100, height: 100 },
+        { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Paw-print.svg/2124px-Paw-print.svg.png", label: "4", width: 100, height: 100 },
+        { src: "https://img.freepik.com/premium-vector/celebrate-labor-day-best-typography-t-shirt-design-for-print_528151-458.jpg", label: "5", width: 100, height: 100 },
+    ]);
+
+
+    useEffect(() => {
+        const resizeImage = () => {
+            if (selectedImage) {
+                selectedImage.style.width = `${imageWidth}px`;
+                selectedImage.style.height = `${imageHeight}px`;
+            }
+        };
+        resizeImage();
+    }, [imageWidth, imageHeight, selectedImage]);
+
+    useEffect(() => {
+        handleUpdateText();
+    }, [textColor, textSize, font]);
+
+    const handleColorChange = (color) => {
+        setTextColor(color.hex);
+    };
+
+    const handleTextSizeChange = (event) => {
+        setTextSize(parseInt(event.target.value, 10));
+    };
+
+    const handleFontChange = (event) => {
+        setFont(event.target.value);
+    };
+
+
+    const handleBackClick = () => {
+        setImageSrc(backImage);
+    };
+
+    const handleFrontClick = () => {
+        setImageSrc(frontImage);
+    };
+
+    const handleAddImageClick = () => {
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.addEventListener('change', handleImageSelected);
+        fileInput.click();
+    };
+
+    const handleImageSelected = (event) => {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            const newImage = document.createElement("img");
+            newImage.src = reader.result;
+            newImage.style.position = "absolute";
+            newImage.style.width = `${imageWidth}px`;
+            newImage.style.height = `${imageHeight}px`;
+            newImage.style.left = "50%";
+            newImage.style.top = "50%";
+            newImage.style.transform = "translate(-50%, -50%)";
+
+            let initialX, initialY;
+            newImage.addEventListener("mousedown", (event) => {
+                initialX = event.clientX;
+                initialY = event.clientY;
+                newImage.style.cursor = "grabbing";
+                document.body.style.cursor = "grabbing";
+                document.addEventListener("mousemove", handleMouseMove);
+                document.addEventListener("mouseup", handleMouseUp);
+            });
+
+            const handleMouseMove = (event) => {
+                const dx = event.clientX - initialX;
+                const dy = event.clientY - initialY;
+                const left = newImage.offsetLeft + dx;
+                const top = newImage.offsetTop + dy;
+                newImage.style.left = `${left}px`;
+                newImage.style.top = `${top}px`;
+                initialX = event.clientX;
+                initialY = event.clientY;
+            };
+
+            const handleMouseUp = () => {
+                newImage.style.cursor = "grab";
+                document.body.style.cursor = "auto";
+                document.removeEventListener("mousemove", handleMouseMove);
+                document.removeEventListener("mouseup", handleMouseUp);
+            };
+
+            const newBlock = document.querySelector(`.${classes.newBlock}`);
+            newBlock.appendChild(newImage);
+            setSelectedImage(newImage);
+
+        };
+    };
+
+
+
+    const handleHeightChange = (event) => {
+            const value = event.target.value;
+            if (value <= 300) {
+                setImageHeight(value);
+            } else {
+                setImageHeight(300);
+            }
+        };
+
+        const handleWidthChange = (event) => {
+            const value = event.target.value;
+            if (value <= 300) {
+                setImageWidth(value);
+            } else {
+                setImageWidth(300);
+            }
+        };
+
+        const handleWidthBlur = (event) => {
+            const value = parseInt(event.target.value);
+            if (!isNaN(value)) {
+                setImageWidth(value);
+            }
+        };
+
+        const handleHeightBlur = (event) => {
+            const value = parseInt(event.target.value);
+            if (!isNaN(value)) {
+                setImageHeight(value);
+            }
+        };
+
+    const handleUpdateImageSize = () => {
+        const newImage = document.querySelector(`.${classes.newBlock} img`);
+        newImage.style.width = `${imageWidth}px`;
+        newImage.style.height = `${imageHeight}px`;
+    };
+
+
+
+    const handleAddTextClick = () => {
+        const newTextField = document.createElement("div");
+        newTextField.className = classes.text;
+        newTextField.contentEditable = "true";
+        newTextField.style.color = textColor;
+        newTextField.style.fontSize = `${textSize}px`;
+        newTextField.style.fontFamily = font;
+        newTextField.innerHTML = "Type your text here";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = classes.deleteButton;
+        deleteButton.innerHTML = "&#10005;"; // Cross icon
+        deleteButton.addEventListener("click", () => {
+            newTextField.remove();
+            setTextFields((prevTextFields) =>
+                prevTextFields.filter((tf) => tf !== newTextField)
+            );
+        });
+        newTextField.appendChild(deleteButton);
+
+        deleteButton.style.display = "none";
+
+        newTextField.addEventListener("mouseenter", () => {
+            deleteButton.style.display = "block";
+        });
+
+        newTextField.addEventListener("mouseleave", () => {
+            deleteButton.style.display = "none";
+        });
+
+        newTextField.addEventListener("click", handleTextClick);
+        newTextField.addEventListener("input", handleTextInput);
+        newTextField.addEventListener("mousedown", handleMouseDown);
+
+        const textBlock = document.querySelector(`.${classes.textBlock}`);
+        const newBlock = document.querySelector(`.${classes.newBlock}`);
+
+        if (textBlock) {
+            textBlock.appendChild(newTextField);
+        }
+
+        if (newBlock) {
+            newBlock.appendChild(newTextField);
+        }
+
+        newTextField.addEventListener("mousedown", (event) => {
+            event.stopPropagation();
+        });
+
+        newTextField.addEventListener("input", (event) => {
+            event.stopPropagation();
+        });
+
+        setTextFields((prevTextFields) => [...prevTextFields, newTextField]);
+    };
+
+
+    const handleUpdateText = () => {
+        textFields.forEach((textField) => {
+            textField.style.color = textColor;
+            textField.style.fontSize = `${textSize}px`;
+            textField.style.fontFamily = font;
+        });
+    };
+
+    const handleTextInput = (event) => {
+        const textField = event.target;
+        const newText = textField.innerText;
+        textField.dataset.content = newText;
+
+        textField.style.color = textColor;
+        textField.style.fontSize = `${textSize}px`;
+        textField.style.fontFamily = font;
+    };
+
+    const handleTextClick = (event) => {
+        event.target.focus();
+    };
+
+
+    const handleMouseDown = (event) => {
+        const textField = event.target;
+        let initialX = event.clientX;
+        let initialY = event.clientY;
+        let currentX = initialX;
+        let currentY = initialY;
+
+        const handleMouseMove = (event) => {
+            const dx = event.clientX - currentX;
+            const dy = event.clientY - currentY;
+            currentX = event.clientX;
+            currentY = event.clientY;
+            textField.style.left = `${textField.offsetLeft + dx}px`;
+            textField.style.top = `${textField.offsetTop + dy}px`;
+        };
+
+        const handleMouseUp = (event) => {
+// Remove event listeners when dragging is done
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleMouseUp);
+    };
+
+
+    const handleColorPickerClick = (visible) => () => {
+        setShowColorPicker(visible);
+    };
+
+    const handleColorPickerClose = () => {
+        setShowColorPicker(false);
+    };
+
+    const handlePopularImageSelected = (src) => {
+        const newImage = document.createElement("img");
+        newImage.src = src;
+        newImage.style.position = "absolute";
+        newImage.style.width = `${imageWidth}px`;
+        newImage.style.height = `${imageHeight}px`;
+        newImage.style.left = "50%";
+        newImage.style.top = "50%";
+        newImage.style.transform = "translate(-50%, -50%)";
+
+        let initialX, initialY;
+        newImage.addEventListener("mousedown", (event) => {
+            initialX = event.clientX;
+            initialY = event.clientY;
+            newImage.style.cursor = "grabbing";
+            document.body.style.cursor = "grabbing";
+            document.addEventListener("mousemove", handleMouseMove);
+            document.addEventListener("mouseup", handleMouseUp);
+        });
+
+        const handleMouseMove = (event) => {
+            const dx = event.clientX - initialX;
+            const dy = event.clientY - initialY;
+            const left = newImage.offsetLeft + dx;
+            const top = newImage.offsetTop + dy;
+            newImage.style.left = `${left}px`;
+            newImage.style.top = `${top}px`;
+            initialX = event.clientX;
+            initialY = event.clientY;
+        };
+
+        const handleMouseUp = () => {
+            newImage.style.cursor = "grab";
+            document.body.style.cursor = "auto";
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleMouseUp);
+        };
+
+        const newBlock = document.querySelector(`.${classes.newBlock}`);
+        newBlock.appendChild(newImage);
+        setSelectedImage(newImage);
+    };
+
+
+    const handleClearNewImage = () => {
+        const newImage = document.getElementById("newImage");
+        while (newImage.firstChild) {
+            newImage.removeChild(newImage.firstChild);
+        }
+    };
+
+    const handleClear = () => {
+        const newBlock = document.querySelector(`.${classes.newBlock}`);
+        while (newBlock.firstChild) {
+            newBlock.removeChild(newBlock.firstChild);
+        }
+
+        const textField = document.querySelector('#text-field');
+        if (textField) {
+            textField.value = '';
+        }
+
+        try {
+            newBlock.appendChild(textField);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
+
+
+
+
+
+    const ComponentOne = () => {
+        return (
+            <Grid item xs={4}>
+                <div className={classes.asideButton}>
+                    <img
+                        src={tshirtImage}
+                        alt="T-Shirt Front"
+                        className={classes.asideButtonImage}
+                        onClick={handleFrontClick}
+                    />
+                    <span className={classes.asideButtonLabel}>Front</span>
+                </div>
+                <div className={classes.asideButton}>
+                    <img
+                        src={backImage}
+                        alt="T-Shirt Back"
+                        className={classes.asideButtonImage}
+                        onClick={handleBackClick}
+                    />
+                    <span className={classes.asideButtonLabel}>Back</span>
+                </div>
+                <div className={classes.asideButton} onClick={handleAddImageClick}>
+                    <img
+                        src="https://img.icons8.com/cotton/64/000000/image--v1.png" alt="Add Image"
+                        className={classes.asideButtonImage}
+                    />
+                    <span className={classes.asideButtonLabel}>Add Image</span>
+                </div>
+                <div className={classes.asideButton} onClick={handleAddTextClick}>
+                    <img
+                        src="https://img.icons8.com/ios/452/add-text--v1.png"
+                        alt="Add Text"
+                        className={classes.asideButtonImage}
+                    />
+                    <span className={classes.asideButtonLabel}>Add Text</span>
+                </div>
+                <Stack  className={classes.buttonContainerDiv} direction="row" spacing={2.5}>
+                    <Button onClick={handleClear} className={classes.buttonContainerDiv} variant="outlined" startIcon={<CleaningServicesRoundedIcon/>}>
+                        Сlean
+                    </Button>
+                </Stack>
+
+            </Grid>
+        );
+    };
+
+    const ComponentTwo = () => {
+        return (
+            <Grid container direction="column" spacing={2}>
+                <Grid item>
+                    <div className={classes.buttonContainerColorAndImage}>
+                        <FontDownloadIcon
+                            className={classes.imageButton}
+                            style={{ fontSize: "2rem", marginRight: "0.5rem" }}
+                        />
+                        <select
+                            className={classes.fontSelect}
+                            value={font}
+                            onChange={handleFontChange}
+                        >
+                            {fontFamilies.map((fontFamily) => (
+                                <option key={fontFamily.value} value={fontFamily.value}>
+                                    {fontFamily.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                </Grid>
+                <Grid item>
+                    <div className={classes.buttonContainerColorAndImage}>
+                        <FormatSizeIcon
+                            className={classes.imageButton}
+                            style={{ fontSize: "2rem", marginRight: "0.5rem" }}
+                        />
+                        <input
+                            type="number"
+                            className={classes.fontSizeInput}
+                            value={textSize}
+                            onChange={handleTextSizeChange}
+                        />
+                    </div>
+                </Grid>
+                <Grid item>
+                    <div className={classes.buttonContainerColorAndImage}>
+                        <ColorLensIcon
+                            className={classes.imageButton}
+                            style={{ fontSize: "2rem", marginRight: "0.5rem" }}
+                        />
+                        <div
+                            style={{
+                                backgroundColor: textColor,
+                                height: "2rem",
+                                width: "2rem",
+                                borderRadius: "50%",
+                                border: "1px solid #ccc",
+                                cursor: "pointer",
+                            }}
+                            onClick={handleColorPickerClick(true)}
+                        />
+                        <Button
+                            style={{ marginLeft: "0.5rem" }}
+                            className={classes.button}
+                            variant="contained"
+                            color="primary"
+                            onClick={handleColorPickerClick(!showColorPicker)}
+                        >
+                            {showColorPicker ? "Hide" : "Show"} Color Picker
+                        </Button>
+                        {showColorPicker && (
+                            <div className={classes.colorPicker}>
+                                <ChromePicker
+                                    color={textColor}
+                                    onChange={handleColorChange}
+                                    onClose={handleColorPickerClose}
+                                />
+                            </div>
+                        )}
+                    </div>
+                </Grid>
+                <Grid item>
+                    <Button
+                        style={{ marginLeft: 10 }}
+                        className={classes.button}
+                        variant="contained"
+                        color="primary"
+                        onClick={handleUpdateText}
+                    >
+                        Update Text
+                    </Button>
+                </Grid>
+                <div>
+                    <div className={classes.ButtonWidthAndHeight}>
+                        <div>
+                            <TextField
+                                style={{marginTop:8}}
+                                label="Width"
+                                variant="outlined"
+                                value={imageWidth}
+                                onChange={handleWidthChange}
+                                onBlur={handleWidthBlur}
+                                InputProps={{
+                                    inputProps: {
+                                        step: 10,
+                                        min: 0,
+                                        type: "number",
+                                    },
+                                }}
+                            />
+                            <TextField
+                                style={{marginTop:8,marginBottom:10}}
+                                label="Height"
+                                variant="outlined"
+                                value={imageHeight}
+                                onChange={handleHeightChange}
+                                onBlur={handleHeightBlur}
+                                InputProps={{
+                                    inputProps: {
+                                        step: 10,
+                                        min: 0,
+                                        type: "number",
+                                    },
+                                }}
+                                />
+                        </div>
+                    <Button variant="contained" onClick={handleUpdateImageSize}>
+                        Update Image Size
+                    </Button>
+                </div>
+            </div>
+            </Grid>
+        );
+    };
+
+    const ComponentTree = () => {
+        return (
+
+            <div className={classes.container}>
+                <div className={classes.popularImages} >
+                    {popularImages.map((image) => (
+                        <img
+                            key={image.src}
+                            src={image.src}
+                            alt={image.label}
+                            width={image.width}
+                            height={image.height}
+                            onClick={() => handlePopularImageSelected(image.src)}
+                        />
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <Grid container spacing={3} className={classes.root}>
+            <Grid item xs={8}>
+                <Paper className={classes.mainPaper}>
+                    <img src={imageSrc} alt="T-Shirt" className={classes.image} />
+
+                    <div className={classes.newBlock}>
+                        <div className={classes.textBlock}></div>
+                    </div>
+                </Paper>
+            </Grid>
+            <div>
+                <Paper className={classes.rootPaper}>
+                    <div className={classes.buttonContainer}>
+                        <Button className={classes.button} variant="contained" color="primary" onClick={() => setActiveComponent(1)}>
+                            Components
+                        </Button>
+                        <Button className={classes.button} variant="contained" color="secondary" onClick={() => setActiveComponent(2)}>
+                            Edit
+                        </Button>
+                        <Button className={classes.button} variant="contained" color="primary" onClick={() => setActiveComponent(3)}>
+                            Popular image
+                        </Button>
+                    </div>
+                    {activeComponent === 1 && <ComponentOne />}
+                    {activeComponent === 2 && <ComponentTwo />}
+                    {activeComponent === 3 && <ComponentTree/>}
+                </Paper>
+            </div>
+        </Grid>
+    );
+}
+export default AddImage;
